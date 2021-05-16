@@ -19,7 +19,7 @@ def prt_board(board, players,turn,donation):
     os.system("cls")
     c = 0
     for i in players:
-        print(f"{i} | 돈: {i.money}만원   아이템:{i.item}")
+        print(f"{i}  {i.mark}| 돈: {round(i.money,1)}만원   아이템:{i.item}")
     print("_"*25)
     print(f"사회복지기금 모금액 : {donation}")
     print("_"*25)
@@ -27,21 +27,32 @@ def prt_board(board, players,turn,donation):
     for i in board:
         print(i , "| ",end="")
         try:
-            if i.owner == players[0].name:
-                b = players[0].mark
-            elif i.owner == players[1].name:
-                b = players[1].mark
+            m = " "
+            for v in players:
+                if i.owner == v.name:
+                    m = v.mark
+        except:
+            pass
+
+        try:
+            if i.build == "mention":
+                b = "■"
+            elif i.build == "building":
+                b = "▦"
+            elif i.build == "hotel":
+                b = "▥"
             else:
                 b = " "
         except:
             b = " "
-        print(f"{b}",end="| ")
+
+        print(f"{m} | {b}",end="| ")
         for k in players:
             if k.location == c:
                 print(k.mark,end=" ")
         print()
         c += 1
         if c % 10 == 0:
-            print(" "*21 + "|  | ")
+            print(" "*21 + "|   |  |  ")
     print()
-    print("="*5 +" "+f"{players[turn].name:=<5}"+" "+f"{round(players[turn].money,1):=>10}"+" 만원")
+    print("="*5 +f"{players[turn].name:=<10}"+f"{round(players[turn].money,1):=>15}"+" 만원")

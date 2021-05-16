@@ -25,15 +25,39 @@ class player():
         ln = len(self.name)
         string = self.name + " "*(6 - ln*2 + self.name.count(" "))
         return string
+    
+    def sell(self,city):
+        board[city].owner = None
+        board[city].build = None
+        board[city].value = board[city].cost
+        board[city].hipass = board[city].origin_cost[1]
+        self.money += board[city].value
+        self.own.remove(city)
 
     def pay(self,cost):
         if self.money >= cost:
             self.money -= cost
+        else:
+            print("돈이 부족합니다. 당신의 사유지를 판매 해주세요")
+            c = 0
+            for i in self.own:
+                c += 1
+                print(f"{c}. {board[i]}",end=" ")
+            while True:
+                try:
+                    coice = int(input("\n어떤 땅을 팔건가요 ? :")) -1
+                    if coice in range(len(self.own)) and input("정말입니까? (y/n) :") == "y":
+                        break
+                    print("다시 입력하세요")
+                except:
+                    print("다시 입력하세요")
+
+            self.sell(board[self.own[coice]])
 
 board = []
 players = []
 running = True
-turn = 1
+turn = -1
 
 donation = 0
 citicount = 0
@@ -68,6 +92,8 @@ for i in range(40):
 
 players.append(player("횩서",351,"@"))
 players.append(player("유야호",351,"$"))
+players.append(player("창모",351,"&"))
+players.append(player("로지텍",351,"#"))
 
 # =============================================================================================================
 
@@ -117,7 +143,7 @@ while running:
                 print("다시 입력해주세요")
                 pass
     else: # 주사위
-        input("주사위 굴리기\n")
+        input("주사위 굴리기")
         a_dice = roll_dice()
         b_dice = roll_dice()
         k = a_dice + b_dice
@@ -142,7 +168,7 @@ while running:
             ply.item.append(key)
         else:
             use_key(players,ply,key,board)
-            key_deck =key_deck + [key]
+            key_deck = [key]+ key_deck
         input()
     
     spot = ply.location
@@ -173,11 +199,11 @@ while running:
             while True: 
                 coi = input()
                 if coi == "1":
-                    print()
-                    print("어떤 건물을 건설하실 건가요?\n1. 별장 \n2. 빌딩\n3. 호텔")
+                    print(f"별장 : {5 * (spot//10 + 1)} 빌딩 : {15 * (spot//10 + 1)} 호텔 : {25 * (spot//10 + 1)}")
+                    print("어떤 건물을 건설하실 건가요?\n1. 별장 \n2. 빌딩\n3. 호텔\n4. 취소")
                     while True:
                         cio = input()
-                        if cio in ["1","2","3"]:
+                        if cio in ["1","2","3","4"]:
                             break
                     
                     if cio == "1":
@@ -204,6 +230,9 @@ while running:
                             board[spot].value = 25 * (spot//10 + 1)
                             board[spot].hipass += board[spot].b_cost[2]
                             break
+                    elif cio == "4":
+                        break
+                    print("돈이 부족하거나 잘못된 값을 입력하셨습니다.")
                 elif coi == "2":
                     break
         
@@ -240,6 +269,8 @@ while running:
             ply.money += donation
             donation = 0
             input()
+        else:
+            print("사회복지기금이 없습니다.")
 
     elif board[spot].type == 7: # 우주 여행 승강장
         ply.space_trip = 1

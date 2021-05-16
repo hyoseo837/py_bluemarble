@@ -15,6 +15,7 @@ class city(block):
         self.type = 1
         self.owner = None
         self.b_cost = cost[2:]
+        self.origin_cost = cost
         self.cost = cost[0]
         self.hipass = cost[1]
         self.build = None

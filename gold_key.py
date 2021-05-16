@@ -12,6 +12,7 @@ def use_key(players,ply,key,board):
             ply.money += 20
         ply.money += 20
         if board[15].owner != None:
+            print("콩코드 여객기 이용료를 지불합니다.")
             payment(ply,board[15].hipass,board[15].owner,players)
         ply.location = 1
     elif no == 1:
@@ -20,6 +21,7 @@ def use_key(players,ply,key,board):
             ply.money += 20
         ply.money += 20
         if board[28].owner != None:
+            print("퀸 엘리자베스 호 이용료를 지불합니다.")
             payment(ply,board[28].hipass,board[28].owner,players)
         ply.location = 3
     elif no == 2:
@@ -92,21 +94,21 @@ def use_key(players,ply,key,board):
         print(f"당신의 호텔수 : {ply.hotel}")
         print(f"당신의 빌딩수 : {ply.building}")
         print(f"당신의 별장수 : {ply.mention}")
-        print(f"총 금액 : ({(5 * ply.hotel + 3 * ply.building + 1 * ply.mention)})")
+        print(f"총 금액 : {(5 * ply.hotel + 3 * ply.building + 1 * ply.mention)} 만원")
         ply.money -= (5 * ply.hotel + 3 * ply.building + 1 * ply.mention)
     elif no == 20:
         print("[ 건물 수리비 ]\n건물의 수리비를 지불해야 합니다.")
         print(f"당신의 호텔수 : {ply.hotel}")
         print(f"당신의 빌딩수 : {ply.building}")
         print(f"당신의 별장수 : {ply.mention}")
-        print(f"총 금액 : ({(10 * ply.hotel + 6 * ply.building + 3 * ply.mention)})")
+        print(f"총 금액 : {(10 * ply.hotel + 6 * ply.building + 3 * ply.mention)} 만원")
         ply.money -= (10 * ply.hotel + 6 * ply.building + 3 * ply.mention)
     elif no == 21:
         print("[ 건물 정기종합소득세 ]\n건물의 정기종합소득세를 지불해야 합니다.")
         print(f"당신의 호텔수 : {ply.hotel}")
         print(f"당신의 빌딩수 : {ply.building}")
         print(f"당신의 별장수 : {ply.mention}")
-        print(f"총 금액 : ({(15 * ply.hotel + 10 * ply.building + 5 * ply.mention)})")
+        print(f"총 금액 : {(15 * ply.hotel + 10 * ply.building + 5 * ply.mention)} 만원")
         ply.money -= (15 * ply.hotel + 10 * ply.building + 5 * ply.mention)
     elif no == 22:
         print("[ 과속운전 ]\n5만원을 지불합니다.")
@@ -120,12 +122,14 @@ def use_key(players,ply,key,board):
 
     elif no == 25 or no == 26: # 건물 판매 수정 필요
         print("[ 반액대매출 ]\n자신이 가진 가장 비싼 부동산을 반값으로 매각해야 합니다.")
-        max_value = 0
-        for b in ply.own:
-            if board[b].value > max_value:
-                max_value = board[b].value
-                max_value_city = b
-        board[max_value_city].owner = None
-        ply.money += board[max_value_city].value /2
-        ply.own.remove(max_value_city)
+        if ply.own != []:
+            max_value = 0
+            for b in ply.own:
+                if board[b].value > max_value:
+                    max_value = board[b].value
+                    max_value_city = b
+            ply.sell(board[max_value_city])
+            ply.money -= board[max_value_city].value /2
+        else:
+            print("판매할 건물이 없습니다")
         
