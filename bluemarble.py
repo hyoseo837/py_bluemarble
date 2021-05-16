@@ -4,7 +4,7 @@ from classes import *
 from gold_key import *
 
 def roll_dice():
-    return random.randrange(1,7) + random.randrange(1,7)
+    return random.randrange(1,7)
 
 
 class player():
@@ -74,11 +74,12 @@ players.append(player("유야호",351,"$"))
 
 # ============================================= 게임 시작 ======================================================
 while running:
-    turn += 1
-    if turn > len(players)-1:
-        turn -= len(players)
-    prt_board(board,players,turn)
-    ply = players[turn]
+    if True: # 턴 넘김
+        turn += 1 
+        if turn > len(players)-1:
+            turn -= len(players)
+        prt_board(board,players,turn,donation)
+        ply = players[turn]
 
     if ply.island > 0: # 무인도
         input(f"탈출 시도 ({4-ply.island}/3)")
@@ -89,7 +90,7 @@ while running:
             ply.island = 0
             pass
         else:
-            if "무인도 탈출권" in ply.item:
+            if "무인도 탈출권" in ply.item: # 아이템 사용
                 if input("무인도 탈출권이 있습니다. 사용하시겠습니까? (y/n): ") == "y":
                     ply.item.remove("무인도 탈출권")
                     ply.island = 0
@@ -103,7 +104,7 @@ while running:
                 input("\n\n턴 종료 ")
                 continue
     
-    if ply.space_trip == 1:
+    if ply.space_trip == 1: # 우주 여행 갈끄니까
         ply.space_trip = 0
         print("우주 여행을 합니다. 몇칸을 더 가고 싶으신가요? (1~39)")
         while True:
@@ -115,21 +116,22 @@ while running:
             except:
                 print("다시 입력해주세요")
                 pass
-    else:
-        input("주사위 굴리기 ")
-        k = roll_dice()
+    else: # 주사위
+        input("주사위 굴리기\n")
+        a_dice = roll_dice()
+        b_dice = roll_dice()
+        k = a_dice + b_dice
 
-    print(k)
+    print(k) # 이동
     ply.location += k
     if ply.location >= 40: # 월급 
         print("출발지를 지나 월급 20 만원을 획득합니다.")
         ply.money += 20
         time.sleep(0.5)
         ply.location -= 40
-    time.sleep(0.5)
+    input()
 
-    prt_board(board,players,turn)
-
+    prt_board(board,players,turn,donation)
     spot = ply.location
     
     if board[spot].type == 4: # 황금 열쇠 사용
@@ -140,13 +142,13 @@ while running:
             ply.item.append(key)
         else:
             use_key(players,ply,key,board)
-            key_deck += [key]
+            key_deck =key_deck + [key]
         input()
+    
     spot = ply.location
     if board[spot].type in [1,2]:
-
         if board[spot].owner == None: # 땅 사기
-            prt_board(board,players,turn)
+            prt_board(board,players,turn,donation)
             print(f"'{board[spot].name}'은 사유지가 아닙니다. 가격 : {board[spot].cost} \n1. 구매하기\n2. 넘어가기")
 
             while True:
@@ -161,8 +163,8 @@ while running:
                 elif coi == "2":
                     break
 
-        elif board[spot].owner == ply.name: # 건물 건설 (작업 필요)
-            prt_board(board,players,turn)
+        elif board[spot].owner == ply.name: # 건물 건설
+            prt_board(board,players,turn,donation)
             print(f"'{board[spot].name}'은 당신의 사유지입니다.")
             if board[spot].type == 2 or board[spot].build != None:
                 input("\n\n턴 종료 ")
@@ -183,36 +185,46 @@ while running:
                             ply.money -= 5 * (spot//10 + 1)
                             ply.mention += 1
                             board[spot].build = "mention"
-                            board[spot].value += board[spot].b_cost[0]
+                            board[spot].value = 5 * (spot//10 + 1)
+                            board[spot].hipass += board[spot].b_cost[0]
                             break
                     elif cio == "2":
                         if ply.money >= 15 * (spot//10 + 1):
                             ply.money -= 15 * (spot//10 + 1)
                             ply.building += 1
                             board[spot].build = "building"
-                            board[spot].value += board[spot].b_cost[1]
+                            board[spot].value = 15 * (spot//10 + 1)
+                            board[spot].hipass += board[spot].b_cost[1]
                             break
                     elif cio == "3":
                         if ply.money >= 25 * (spot//10 + 1):
                             ply.money -= 25 * (spot//10 + 1)
                             ply.hotel += 1
                             board[spot].build = "hotel"
-                            board[spot].value += board[spot].b_cost[2]
+                            board[spot].value = 25 * (spot//10 + 1)
+                            board[spot].hipass += board[spot].b_cost[2]
                             break
                 elif coi == "2":
                     break
         
-        elif board[spot].owner != ply.name: # 통행료 받기 (추가 작업 필요)
+        elif board[spot].owner != ply.name: # 통행료 내기 
             print(f"{board[spot].name}은 {board[spot].owner}님의 사유지입니다.")
             print(f"통행료 {board[spot].hipass} 만원을 내야 합니다.")
             input()
-            payment(ply,board[spot].hipass,board[spot].owner,players)
+            if "우대권" in ply.item:
+                if input("우대권을 사용하시겠습니까? (y/n) : ") == "y":
+                    print("\n우대권을 사용합니다.")
+                    ply.item.remove("우대권")
+                else:
+                    payment(ply,board[spot].hipass,board[spot].owner,players)
+            else:
+                payment(ply,board[spot].hipass,board[spot].owner,players)
 
-    elif board[spot].type == 3:
+    elif board[spot].type == 3: # 무인도
         print("무인도에 남겨졌습니다.")
         ply.island = 3
 
-    elif board[spot].type == 5:
+    elif board[spot].type == 5: # 사회복지기금 접수처
         print("사회복지기금에 기부해주세요 (15 만원)")
         input()
         if ply.money >= 15:
@@ -222,14 +234,14 @@ while running:
             donation += ply.money
             ply.money = 0
 
-    elif board[spot].type == 6:
+    elif board[spot].type == 6: # 사회복지기금 수령처
         if donation > 0:
             print(f"사회복지기금을 수령하십시오 ({donation}만원)")
             ply.money += donation
             donation = 0
             input()
 
-    elif board[spot].type == 7:
+    elif board[spot].type == 7: # 우주 여행 승강장
         ply.space_trip = 1
         print("다음턴에 우주여행을 할수 있습니다.")
         if board[32].owner != None:

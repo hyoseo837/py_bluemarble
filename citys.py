@@ -15,11 +15,14 @@ ride_list = ["콩코드 여객기","퀸 엘리자베스 호","콜럼비아 호"]
 ride_cost = [(20,30),(30,25),(45,40)]
 
 
-def prt_board(board, players,turn):
+def prt_board(board, players,turn,donation):
     os.system("cls")
     c = 0
     for i in players:
         print(f"{i} | 돈: {i.money}만원   아이템:{i.item}")
+    print("_"*25)
+    print(f"사회복지기금 모금액 : {donation}")
+    print("_"*25)
     print()
     for i in board:
         print(i , "| ",end="")
@@ -41,4 +44,4 @@ def prt_board(board, players,turn):
         if c % 10 == 0:
             print(" "*21 + "|  | ")
     print()
-    print("="*5 +f"{players[turn].name:=<5}"+f"{round(players[turn].money,1):=>10}"+" 만원")
+    print("="*5 +" "+f"{players[turn].name:=<5}"+" "+f"{round(players[turn].money,1):=>10}"+" 만원")
