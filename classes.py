@@ -9,7 +9,6 @@ class block():
         string = self.name + " "*(20 - ln*2 + self.name.count(" "))
         return string
     
-
 class city(block):
     def __init__(self, city_name, location, cost):
         super().__init__(city_name,location)
@@ -67,3 +66,12 @@ class space_trip(block):
     def __init__(self, name, location):
         super().__init__(name, location)
         self.type = 7
+
+
+def payment(player,cost,to,players):
+    player.pay(cost)
+    for w in players:
+        if w.name == to:
+            w.money += cost
+    print(f"{player.name} => {cost} 만원 => {to}")
+    input()

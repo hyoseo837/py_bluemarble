@@ -1,27 +1,25 @@
 from citys import *
 import random,time
 from classes import *
+from gold_key import *
 
 def roll_dice():
     return random.randrange(1,7) + random.randrange(1,7)
 
-def payment(player,cost,to,players):
-    player.pay(cost)
-    for w in players:
-        if w.name == to:
-            w.money += cost
-    print(f"{player.name} => {cost} 만원 => {to}")
 
 class player():
-    def __init__(self, order, money, mark):
+    def __init__(self, order, money, mark, location = 0):
         self.name = "여행자 " + str(order)
-        self.location = 0
+        self.location = location
         self.money = money
         self.mark = mark
         self.own = []
         self.island = 0
         self.item = []
         self.space_trip = 0
+        self.hotel = 0
+        self.building = 0
+        self.mention = 0
     
     def __str__(self):
         return self.name
@@ -39,6 +37,9 @@ donation = 0
 citicount = 0
 koreacount = 0
 ridecount = 0
+# ============================================= 게임 준비 ======================================================
+key_deck = key_list.copy()
+random.shuffle(key_deck)
 
 for i in range(40):
     if i not in [0,2,5,7,10,12,15,17,20,22,25,28,30,32,35,38,39]:
@@ -61,12 +62,15 @@ for i in range(40):
     elif i == 20:
         board.append(donate_hub("사회복지기금 수령처",i))
     elif i == 30:
-        board.append(space_trip("우주 여행",i))
-
+        board.append(space_trip("우주 여행 승강장",i))
 
 players.append(player(1,100,"@"))
 players.append(player(2,100,"$"))
 
+# =============================================================================================================
+
+
+# ============================================= 게임 시작 ======================================================
 while running:
     turn += 1
     if turn > len(players)-1:
@@ -115,6 +119,15 @@ while running:
 
     spot = ply.location
     
+    if board[spot].type == 4: # 황금 열쇠 (작업 필요)
+        key = key_deck.pop()
+        if key in key_list[-3:]:
+            print(f"{key} 를 획득 하였습니다. 보관후 나중에 사용할 수 있습니다.")
+            ply.item.append(key)
+        else:
+            use_key(players,ply,key,board)
+            
+    spot = ply.location
     if board[spot].type in [1,2]:
 
         if board[spot].owner == None: # 땅 사기
@@ -162,12 +175,9 @@ while running:
 
     elif board[spot].type == 3:
         print("무인도에 남겨졌습니다.")
-        input()
         ply.island = 3
 
-    elif board[spot].type == 4: # 황금 열쇠 (작업 필요)
-        pass
-
+        
     elif board[spot].type == 5:
         print("사회복지기금에 기부해주세요 (15 만원)")
         input()
@@ -180,7 +190,7 @@ while running:
 
     elif board[spot].type == 6:
         if donation > 0:
-            print(f"사회복지기금을 수령하십시오 {donation}만원")
+            print(f"사회복지기금을 수령하십시오 ({donation}만원)")
             ply.money += donation
             donation = 0
             input()
@@ -193,5 +203,4 @@ while running:
         elif board[32].owner in [players[0].name,players[1].name]:
             payment(ply,20,board[32].owner,players)
 
-    prt_board(board,players,turn)
-    input("턴 종료 ")
+    input("\n\n턴 종료 ")
