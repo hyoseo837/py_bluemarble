@@ -14,6 +14,7 @@ class city(block):
         super().__init__(city_name,location)
         self.type = 1
         self.owner = None
+        self.b_cost = cost[2:]
         self.cost = cost[0]
         self.hipass = cost[1]
         self.build = None

@@ -8,8 +8,8 @@ def roll_dice():
 
 
 class player():
-    def __init__(self, order, money, mark, location = 0):
-        self.name = "여행자 " + str(order)
+    def __init__(self, name, money, mark, location = 0):
+        self.name = name
         self.location = location
         self.money = money
         self.mark = mark
@@ -22,7 +22,9 @@ class player():
         self.mention = 0
     
     def __str__(self):
-        return self.name
+        ln = len(self.name)
+        string = self.name + " "*(6 - ln*2 + self.name.count(" "))
+        return string
 
     def pay(self,cost):
         if self.money >= cost:
@@ -64,8 +66,8 @@ for i in range(40):
     elif i == 30:
         board.append(space_trip("우주 여행 승강장",i))
 
-players.append(player(1,100,"@"))
-players.append(player(2,100,"$"))
+players.append(player("횩서",351,"@"))
+players.append(player("유야호",351,"$"))
 
 # =============================================================================================================
 
@@ -87,9 +89,19 @@ while running:
             ply.island = 0
             pass
         else:
-            ply.island -= 1
-            input("턴 종료 ")
-            continue
+            if "무인도 탈출권" in ply.item:
+                if input("무인도 탈출권이 있습니다. 사용하시겠습니까? (y/n): ") == "y":
+                    ply.item.remove("무인도 탈출권")
+                    ply.island = 0
+                    pass
+                else:
+                    ply.island -= 1
+                    input("\n\n턴 종료 ")
+                    continue
+            else:
+                ply.island -= 1
+                input("\n\n턴 종료 ")
+                continue
     
     if ply.space_trip == 1:
         ply.space_trip = 0
@@ -106,6 +118,7 @@ while running:
     else:
         input("주사위 굴리기 ")
         k = roll_dice()
+
     print(k)
     ply.location += k
     if ply.location >= 40: # 월급 
@@ -119,14 +132,16 @@ while running:
 
     spot = ply.location
     
-    if board[spot].type == 4: # 황금 열쇠 (작업 필요)
+    if board[spot].type == 4: # 황금 열쇠 사용
+        print("=====[ 황금열쇠 ]=====")
         key = key_deck.pop()
         if key in key_list[-3:]:
             print(f"{key} 를 획득 하였습니다. 보관후 나중에 사용할 수 있습니다.")
             ply.item.append(key)
         else:
             use_key(players,ply,key,board)
-            
+            key_deck += [key]
+        input()
     spot = ply.location
     if board[spot].type in [1,2]:
 
@@ -148,8 +163,9 @@ while running:
 
         elif board[spot].owner == ply.name: # 건물 건설 (작업 필요)
             prt_board(board,players,turn)
-            print(f"'{board[spot]}'은 당신의 사유지입니다.")
-            if board[spot].type == 2:
+            print(f"'{board[spot].name}'은 당신의 사유지입니다.")
+            if board[spot].type == 2 or board[spot].build != None:
+                input("\n\n턴 종료 ")
                 continue
             print("1. 건물 건설하기\n2. 넘어가기")
             while True: 
@@ -163,12 +179,31 @@ while running:
                             break
                     
                     if cio == "1":
-                        break
+                        if ply.money >= 5 * (spot//10 + 1):
+                            ply.money -= 5 * (spot//10 + 1)
+                            ply.mention += 1
+                            board[spot].build = "mention"
+                            board[spot].value += board[spot].b_cost[0]
+                            break
+                    elif cio == "2":
+                        if ply.money >= 15 * (spot//10 + 1):
+                            ply.money -= 15 * (spot//10 + 1)
+                            ply.building += 1
+                            board[spot].build = "building"
+                            board[spot].value += board[spot].b_cost[1]
+                            break
+                    elif cio == "3":
+                        if ply.money >= 25 * (spot//10 + 1):
+                            ply.money -= 25 * (spot//10 + 1)
+                            ply.hotel += 1
+                            board[spot].build = "hotel"
+                            board[spot].value += board[spot].b_cost[2]
+                            break
                 elif coi == "2":
                     break
         
         elif board[spot].owner != ply.name: # 통행료 받기 (추가 작업 필요)
-            print(f"{board[spot].owner}의 사유지에 침범하였습니다.")
+            print(f"{board[spot].name}은 {board[spot].owner}님의 사유지입니다.")
             print(f"통행료 {board[spot].hipass} 만원을 내야 합니다.")
             input()
             payment(ply,board[spot].hipass,board[spot].owner,players)
@@ -177,7 +212,6 @@ while running:
         print("무인도에 남겨졌습니다.")
         ply.island = 3
 
-        
     elif board[spot].type == 5:
         print("사회복지기금에 기부해주세요 (15 만원)")
         input()

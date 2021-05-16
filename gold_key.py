@@ -4,7 +4,6 @@ key_list = ["항공여행","관광 여행","고속도로","서울여행","부산
     "건물 방범비","건물 수리비","건물 정기종합소득세","과속운전","병원비","해외유학",\
     "반액대매출","반액대매출","무인도 탈출권","우대권","우대권"]
 
-
 def use_key(players,ply,key,board):
     no = key_list.index(key)
     if no == 0:
@@ -103,7 +102,7 @@ def use_key(players,ply,key,board):
         print(f"총 금액 : ({(10 * ply.hotel + 6 * ply.building + 3 * ply.mention)})")
         ply.money -= (10 * ply.hotel + 6 * ply.building + 3 * ply.mention)
     elif no == 21:
-        print("[ 건물 방범비 ]\n건물의 방범비를 지불해야 합니다.")
+        print("[ 건물 정기종합소득세 ]\n건물의 정기종합소득세를 지불해야 합니다.")
         print(f"당신의 호텔수 : {ply.hotel}")
         print(f"당신의 빌딩수 : {ply.building}")
         print(f"당신의 별장수 : {ply.mention}")
